@@ -1,0 +1,20 @@
+{
+  "name": "builder",
+  "version": "0.0.1",
+  "description": "builds node projects",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "NODE_ENV=development ts-node-dev --respawn --transpile-only ./index.ts"
+  },
+  "author": "l.deangelis@oneoffsolution.it",
+  "license": "ISC",
+  "devDependencies": {
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "yargs": "^17.7.2"
+  }
+}
