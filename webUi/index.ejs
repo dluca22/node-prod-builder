@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node builder</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="title">Hello</div>
+    <div class="hero">Node application builder for apps in <%= sourceDir %></div>
+
+    <div class="main">
+      <div class="list">
+        <% for (let i = 0; i < projects.length; i++) { %>
+          <div class="box"><%= projects[i] %></li>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script type="module" src="/webUi/script.ts"></script>
+</body>
+</html>

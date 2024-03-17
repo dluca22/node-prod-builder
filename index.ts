@@ -3,18 +3,26 @@ import { CONFIG } from "./services/configService";
 import { GitController } from "./services/git";
 const fs = require('fs');
 import dayjs from 'dayjs';
+import { web } from "./webUi/server";
 
 const readline = require('readline');
 
 const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 const sourceDir = CONFIG.source;
-const allRepos = fs. readdirSync(sourceDir)
+export const allRepos = fs. readdirSync(sourceDir)
 
 // console.log(allRepos)
 
 // Create interface for reading input and writing output
 async function main() {
+
+  // Start the server
+const port = process.env.PORT || 3000;
+web.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+
 
   console.log(...allRepos.map(r => r + ' | '));
 
