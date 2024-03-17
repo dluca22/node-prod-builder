@@ -2,10 +2,8 @@ import { cmdExec, cmdHandler } from "./services/cmdHandler";
 import { CONFIG } from "./services/configService";
 import { GitController } from "./services/git";
 const fs = require('fs');
-// built-in 'readline' module to interact with the command line
+
 const readline = require('readline');
-const { exec } = require('child_process');
-const path = require('path');
 
 
 const sourceDir = CONFIG.source;
@@ -40,15 +38,21 @@ async function main() {
     const projPath = `${sourceDir}${project}`
 
     // Execute a shell command
-    cmdExec("npm run build", projPath).then(() => {
-      cmdExec(`zip ${project}_dist.zip ./dist`).then(() => {
-        console.log('Executed command');
-      })
-    }).catch(err => {
-      console.log('Err executing command', err)
-    })
-  }
+    let build = await cmdExec("npm run build", projPath)
+    if(!build.success){
+      console.log('Build failed', build.stderr);
+      return;
+    } 
+    console.log('Build complete: ', build.stdout);
 
+    let zip = await cmdExec(`zip -r ${project}_build.zip dist`, projPath);
+    if(!zip.success){
+      console.log('zip failed', zip.stderr);
+      return;
+    }
+    console.log('Zip complete: ', zip.stdout);
+
+  }
 }
 
 main();

@@ -20,7 +20,7 @@ export function cmdHandler(...command): Promise<any> {
 
 import { exec } from 'child_process';
 
-export function cmdExec(cmd: string, directory?:string): Promise<void> {
+export function cmdExec(cmd: string, directory?:string): Promise<{success:boolean, stdout?:string, stderr?:string}> {
   let command = directory ? `cd ${directory} && ${cmd}` : cmd ;
   
   console.log('Command: ', command);
@@ -32,11 +32,12 @@ export function cmdExec(cmd: string, directory?:string): Promise<void> {
         reject(error);
       } else {
         if(stdout){
-          console.log(`STDOUT: ${stdout}`);}
-        if(stderr){
-          console.error(`STDERR: ${stderr}`);
+          // console.log(`STDOUT: ${stdout}`);}
+          resolve({success:true, stdout});
+        }else if(stderr){
+          // console.error(`STDERR: ${stderr}`);
+          resolve({success:false, stderr})
         }
-        resolve();
       }
     });
   });
