@@ -1,56 +1,50 @@
 import { CONFIG } from "./services/configService";
+import { GitController } from "./services/git";
 const fs = require('fs');
 // built-in 'readline' module to interact with the command line
 const readline = require('readline');
 
-
 const sourceDir = CONFIG.root;
 const allRepos = fs. readdirSync(sourceDir)
 
-console.log(allRepos)
-
+// console.log(allRepos)
 
 // Create interface for reading input and writing output
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
+async function main() {
+  const project = await cliInterface('Select project: ', allRepos)
+  console.log('progetto selezionato', project, ' !!!!')
 
-// Function to handle user input
-function handleInput(input:string) {
-    // Handle different commands
-    switch (input.trim()) {
-        case 'hello':
-            console.log('Hello!');
-            break;
-        case 'time':
-            console.log(new Date().toLocaleTimeString());
-            break;
-        case 'exit':
-            console.log('Exiting...');
-            rl.close(); // Close the readline interface
-            break;
-        default:
-            console.log('Unknown command. Available commands: hello, time, exit');
-    }
+  const gtc = new GitController(sourceDir + project)
+  let branches:string[] = await gtc.git.branchLocal((err, branches) => {
+    if (err) {
+      console.error('Error:', err);
+    } else {
+      return branches;
+    }})
 
-    // Prompt for next command
-    rl.prompt();
+  const branch = await  cliInterface('Select branch: ', branches.all)
+  console.log('branch selezionato', branch, ' !!!!')
+
 }
 
-// Set up event listener for user input
-rl.on('line', handleInput);
+main();
 
-// Display initial prompt
-console.log('CLI app started. Available commands: hello, time, exit');
-rl.prompt();
+async function cliInterface(msg:string, choices:string[]): Promise<string> {
 
-// Event listener for closing the readline interface
-rl.on('close', () => {
-    console.log('CLI app closed.');
-    process.exit(); // Terminate the Node.js process
-});
-
-// Display initial prompt
-console.log('CLI app started. Available commands: hello, time, exit');
-rl.prompt();
+  return new Promise((resolve) => {
+    let rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      completer: (line:string) => {
+        const completions = choices;
+        const hits = completions.filter((c:string) => c.startsWith(line));
+        return [hits.length ? hits : completions, line];
+      }
+    });
+      
+    rl.question(msg, (command:string) => {
+      rl.close();
+      resolve(command);
+    });
+  })
+}
