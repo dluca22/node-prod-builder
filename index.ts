@@ -1,10 +1,14 @@
+import { cmdExec, cmdHandler } from "./services/cmdHandler";
 import { CONFIG } from "./services/configService";
 import { GitController } from "./services/git";
 const fs = require('fs');
 // built-in 'readline' module to interact with the command line
 const readline = require('readline');
+const { exec } = require('child_process');
+const path = require('path');
 
-const sourceDir = CONFIG.root;
+
+const sourceDir = CONFIG.source;
 const allRepos = fs. readdirSync(sourceDir)
 
 // console.log(allRepos)
@@ -15,7 +19,7 @@ async function main() {
   console.log('progetto selezionato', project, ' !!!!')
 
   const gtc = new GitController(sourceDir + project)
-  let branches:string[] = await gtc.git.branchLocal((err, branches) => {
+  let branches = await gtc.git.branchLocal((err, branches) => {
     if (err) {
       console.error('Error:', err);
     } else {
@@ -24,6 +28,26 @@ async function main() {
 
   const branch = await  cliInterface('Select branch: ', branches.all)
   console.log('branch selezionato', branch, ' !!!!')
+
+  gtc.git.checkout(branch)
+  gtc.git.pull('origin', branch, ['--force'])
+
+  const confirmBuild = await cliInterface('Do you want build?? ', ['yes', 'no']);
+
+  if(confirmBuild == 'yes'){
+    console.log('Starting build');
+
+    const projPath = `${sourceDir}${project}`
+
+    // Execute a shell command
+    cmdExec("npm run build", projPath).then(() => {
+      cmdExec(`zip ${project}_dist.zip ./dist`).then(() => {
+        console.log('Executed command');
+      })
+    }).catch(err => {
+      console.log('Err executing command', err)
+    })
+  }
 
 }
 
